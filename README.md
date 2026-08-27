@@ -26,3 +26,46 @@ dsh plugin --profile web remove @dsh-external/dsh-minimal-gate
 - minimal 预设下的 agent 只剩 bash + str_replace_editor 两个工具
 - 以后安装的其他插件（注册到全局工具层）也会自动被挡在 minimal 之外，
   不需要修改本插件
+
+## 实现原理
+
+对 minimal 预设的会话动态计算当前全局工具名单，用 `tools.restrict({ deny })`
+拉黑除 bash 与 str_replace_editor 外的所有工具，并监听工具变动事件随时校正。
+
+---
+
+## English
+
+A tool gate for DSH's `minimal` preset: keeps only `bash` and
+`str_replace_editor`, denying every other globally-registered tool.
+Only affects the minimal preset.
+
+### Install
+
+```bash
+dsh plugin --profile web add github:chen-001/dsh-minimal-gate
+```
+
+The plugin joins the profile layer automatically (hot-mounted, no restart).
+
+> If pnpm blocks the build script (pnpm 10 blocks git dependencies' `prepare`
+> by default), ignore it — compiled output ships in the repo. Or allowlist the
+> package in the profile's `pnpm-workspace.yaml` and re-run.
+
+### Uninstall
+
+```bash
+dsh plugin --profile web remove @dsh-external/dsh-minimal-gate
+```
+
+### What it does
+
+- Agents on the minimal preset see only `bash` and `str_replace_editor`
+- Future plugins (registered to the global tool layer) are kept out of
+  minimal automatically — no changes to this plugin needed
+
+### How it works
+
+For minimal-preset sessions it computes the current global tool list and
+denies all of it except `bash` and `str_replace_editor` via
+`tools.restrict({ deny })`, re-checking whenever the tool registry changes.
