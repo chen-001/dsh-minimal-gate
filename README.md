@@ -11,10 +11,6 @@ dsh plugin --profile web add github:chen-001/dsh-minimal-gate
 
 安装后自动进入该 profile 的插件层，重启 web 后生效。
 
-> 如果 pnpm 提示构建脚本被阻止（pnpm 10 默认拦截 git 依赖的 prepare），
-> 忽略即可——仓库自带编译产物；也可以按提示在 profile 的
-> `pnpm-workspace.yaml` 里 allowlist 后重装。
-
 ## 卸载
 
 ```bash
@@ -47,10 +43,6 @@ dsh plugin --profile web add github:chen-001/dsh-minimal-gate
 ```
 
 The plugin joins the profile layer automatically; restart the web app to load it.
-
-> If pnpm blocks the build script (pnpm 10 blocks git dependencies' `prepare`
-> by default), ignore it — compiled output ships in the repo. Or allowlist the
-> package in the profile's `pnpm-workspace.yaml` and re-run.
 
 ### Uninstall
 

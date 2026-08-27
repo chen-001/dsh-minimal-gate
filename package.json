@@ -21,7 +21,6 @@
     "typescript": "^5.9.0"
   },
   "scripts": {
-    "prepare": "npm run build",
     "build": "bash scripts/build.sh",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   }
