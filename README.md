@@ -9,7 +9,7 @@ DSH 极简模式工具闸门：让 `minimal` 预设只保留 `bash` 和 `str_rep
 dsh plugin --profile web add github:chen-001/dsh-minimal-gate
 ```
 
-安装后自动进入该 profile 的插件层并生效（热挂载，无需重启）。
+安装后自动进入该 profile 的插件层，重启 web 后生效。
 
 > 如果 pnpm 提示构建脚本被阻止（pnpm 10 默认拦截 git 依赖的 prepare），
 > 忽略即可——仓库自带编译产物；也可以按提示在 profile 的
@@ -46,7 +46,7 @@ Only affects the minimal preset.
 dsh plugin --profile web add github:chen-001/dsh-minimal-gate
 ```
 
-The plugin joins the profile layer automatically (hot-mounted, no restart).
+The plugin joins the profile layer automatically; restart the web app to load it.
 
 > If pnpm blocks the build script (pnpm 10 blocks git dependencies' `prepare`
 > by default), ignore it — compiled output ships in the repo. Or allowlist the
