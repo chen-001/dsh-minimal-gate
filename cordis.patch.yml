@@ -1,0 +1,6 @@
+# dsh-minimal-gate bundle 层：插入闸门插件行。
+# 行 id 可被用户自己的层覆盖（同一行最后写入者生效）。
+- insert:
+    - id: dsh-minimal-gate
+      name: '@dsh-external/dsh-minimal-gate'
+      config: {}

@@ -13,9 +13,15 @@
  * 只剩 bash + str_replace_editor。deny 名单按 `tools.view()` 的
  * `restrictableNames` 动态计算，未来新增的全局工具也会自动被挡掉。
  */
-import type { Context } from 'cordis'
-
 export const name = '@dsh-external/dsh-minimal-gate'
+
+/** 本插件使用的 cordis 上下文最小面。零运行时依赖，仅类型声明。 */
+interface GateContext {
+  get(key: string): unknown
+  on(event: string, listener: (...args: any[]) => unknown): unknown
+  effect(setup: () => () => void): void
+  logger?: { warn(...args: unknown[]): void }
+}
 
 /** 极简预设下始终保留的模型可见工具。 */
 const KEEP = new Set(['bash', 'str_replace_editor'])
@@ -23,13 +29,13 @@ const KEEP = new Set(['bash', 'str_replace_editor'])
 /** 本插件关注的 tools 服务最小面。 */
 interface ToolsFace {
   restrict(filter: { deny?: string[] }): () => void
-  view(scope: Context | undefined): { restrictableNames: ReadonlySet<string> }
+  view(scope: GateContext | undefined): { restrictableNames: ReadonlySet<string> }
 }
 
 /** 本插件关注的 agent 最小面。 */
 interface AgentFace {
   id: string
-  ctx: Context
+  ctx: GateContext
 }
 
 /** agent 注册表最小面。 */
@@ -39,20 +45,20 @@ interface AgentsFace {
 
 /** agent-presets 服务最小面：直接读该 agent 实际挂载的预设 id。 */
 interface AgentPresetsFace {
-  composedPreset(agentCtx: Context): string | undefined
+  composedPreset(agentCtx: GateContext): string | undefined
 }
 
-function optionalService<T>(ctx: Context, service: string): T | undefined {
+function optionalService<T>(ctx: GateContext, service: string): T | undefined {
   try {
-    return (ctx.get as (key: string) => unknown).call(ctx, service) as T | undefined
+    return ctx.get(service) as T | undefined
   } catch {
     return undefined
   }
 }
 
-export function apply(ctx: Context): void {
+export function apply(ctx: GateContext): void {
   /** agent/created 等事件由 dsh-agent/dsh-tools 模块扩充，不引入其类型时用宽类型挂监听。 */
-  const on = ctx.on.bind(ctx) as unknown as (event: string, listener: (...args: any[]) => unknown) => unknown
+  const on = ctx.on.bind(ctx)
 
   /** agent.id -> 当前生效的 gate（deny 名单签名 + 撤销器）。 */
   const gates = new Map<string, { signature: string; dispose?: () => void }>()
