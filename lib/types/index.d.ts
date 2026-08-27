@@ -12,6 +12,7 @@
  * 所有工具 deny 掉（预设自己挂载的 scoped 工具不受影响），于是极简模式
  * 只剩 bash + str_replace_editor。deny 名单按 `tools.view()` 的
  * `restrictableNames` 动态计算，未来新增的全局工具也会自动被挡掉。
+ * 校正发生在消息进入 inbox 时（早于工具快照），第一条请求即严格生效。
  */
 export declare const name = "@dsh-external/dsh-minimal-gate";
 /** 本插件使用的 cordis 上下文最小面。零运行时依赖，仅类型声明。 */

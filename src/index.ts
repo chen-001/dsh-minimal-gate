@@ -12,6 +12,7 @@
  * 所有工具 deny 掉（预设自己挂载的 scoped 工具不受影响），于是极简模式
  * 只剩 bash + str_replace_editor。deny 名单按 `tools.view()` 的
  * `restrictableNames` 动态计算，未来新增的全局工具也会自动被挡掉。
+ * 校正发生在消息进入 inbox 时（早于工具快照），第一条请求即严格生效。
  */
 export const name = '@dsh-external/dsh-minimal-gate'
 
@@ -128,16 +129,25 @@ export function apply(ctx: GateContext): void {
     clearGate(agent.id)
   })
 
-  on('agent/request', async (payload: { agent?: AgentFace }, next: () => Promise<unknown>) => {
-    const resolved = await next()
+  // 消息进入 inbox 时校正：早于 system-prompt 收集工具快照（assemble），
+  // 保证第一条请求就只剩 KEEP 里的工具。
+  on('agent/inbox/inserted', ({ agent }: { agent: AgentFace }) => {
     try {
-      // 预设可能在首条消息前被切换（recompose）；每次请求前校正一次，
+      applyGate(agent)
+    } catch {
+      // 校正失败不阻断消息流；下一条消息会再校正。
+    }
+  })
+
+  on('agent/request', async (payload: { agent?: AgentFace }, next: () => Promise<unknown>) => {
+    try {
+      // 兜底校正（在请求继续前执行）：预设可能在请求中途被切换（recompose）。
       // 签名不变时是 no-op，不会堆积重复 restriction。
       applyGate(payload.agent)
     } catch {
       // 校正失败不阻断请求。
     }
-    return resolved
+    return await next()
   })
 
   // 新全局工具注册后重新校正所有活 agent（minimal 下新工具也要被挡）。

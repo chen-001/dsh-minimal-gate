@@ -26,7 +26,8 @@ dsh plugin --profile web remove @dsh-external/dsh-minimal-gate
 ## 实现原理
 
 对 minimal 预设的会话动态计算当前全局工具名单，用 `tools.restrict({ deny })`
-拉黑除 bash 与 str_replace_editor 外的所有工具，并监听工具变动事件随时校正。
+拉黑除 bash 与 str_replace_editor 外的所有工具；每条消息进入时先校正，
+第一条请求即严格生效，并监听工具变动事件随时更新。
 
 ---
 
@@ -60,4 +61,6 @@ dsh plugin --profile web remove @dsh-external/dsh-minimal-gate
 
 For minimal-preset sessions it computes the current global tool list and
 denies all of it except `bash` and `str_replace_editor` via
-`tools.restrict({ deny })`, re-checking whenever the tool registry changes.
+`tools.restrict({ deny })`. The gate is applied as each message enters the
+inbox, so the very first request is already restricted; tool-registry changes
+trigger re-checks.
